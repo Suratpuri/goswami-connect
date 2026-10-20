@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Goswami Connect",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Goswami Connect",
+  "start_url": "/",
+  "theme_color": "#171a36",
+  "id": "Goswami-Connect",
+  "description": "Goswami Connect Chat and Video Calling App"
+}
