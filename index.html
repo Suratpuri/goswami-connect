@@ -1,302 +1,235 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Goswami Connect</title>
-
-<style>
-*{box-sizing:border-box}
-body{
- margin:0;
- background:#eef3f6;
- color:#202832;
- font-family:Arial,sans-serif
-}
-header{
- background:#075e54;
- color:white;
- padding:22px 18px;
- font-size:24px;
- font-weight:bold
-}
-header small{
- display:block;
- font-size:15px;
- font-weight:normal;
- margin-top:8px
-}
-.wrap{max-width:760px;margin:auto;padding:16px}
-.card{
- background:white;
- border-radius:20px;
- padding:20px;
- margin:14px 0;
- box-shadow:0 5px 20px #0000000b
-}
-h2{font-size:22px;margin:0 0 16px}
-button,input{
- font:inherit;
- border-radius:12px;
- padding:14px;
- border:1px solid #cbd5d8
-}
-button{
- background:#087f70;
- color:white;
- border:0;
- font-weight:bold;
- margin:5px 4px 5px 0
-}
-.secondary{background:#e4eeee;color:#164d47}
-.danger{background:#a62929}
-input{width:100%;margin:6px 0 12px}
-.status{
- background:#e8f5ed;
- color:#24543c;
- border-radius:12px;
- padding:12px;
- margin:10px 0
-}
-video{
- width:100%;
- min-height:180px;
- background:#222;
- border-radius:14px;
- margin-top:8px
-}
-.note{font-size:14px;color:#5f6b70;line-height:1.5}
-#qrbox{
- padding:12px;
- background:#f4f7f7;
- border-radius:12px;
- word-break:break-word
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goswami Connect</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background-color: #f0f2f5;
+      color: #333152;
+      font-family: sans-serif;
+    }
+    header {
+      background-color: #075e54;
+      color: white;
+      padding: 12px 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    header small {
+      display: block;
+      font-size: 13px;
+      font-weight: normal;
+      margin-top: 4px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 15px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 14px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h2 { font-size: 22px; margin: 0 0 10px; }
+    button, input {
+      font-family: inherit;
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid #ccd1d9;
+    }
+    button {
+      background: #075e54;
+      color: white;
+      border: 0;
+      font-weight: bold;
+      margin: 5px 4px 5px 0;
+      cursor: pointer;
+    }
+    .secondary { background: #400000; color: #f64647; }
+    .danger { background: #f64647; }
+    input[type=text] { width: 100%; margin: 8px 0 12px; }
+    .status {
+      background: #e9f5ed;
+      color: #24543c;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    video {
+      width: 100%;
+      max-width: 400px;
+      background: #000;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .outbox {
+      padding: 12px;
+      background: #f6f7f9;
+      border-radius: 12px;
+      word-break: break-word;
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-🔗 Goswami Connect
-<small>डिवाइस कनेक्शन • लाइव कैमरा • ऑडियो • लोकेशन</small>
-</header>
+  <header>
+    Goswami Connect
+    <small>सुरक्षित एवं लाइव सर्वर सिस्टम</small>
+  </header>
 
-<main class="wrap">
+  <div class="container">
+    
+    <!-- Google Login Card -->
+    <div class="card" id="auth-card">
+      <h2>गूगल अकाउंट लॉगिन</h2>
+      <p style="color: #555; margin-bottom: 15px;">चैट और सेवाओं का उपयोग करने के लिए लॉगिन करें।</p>
+      <button onclick="loginWithGoogle()" style="background: #4285f4;">Google से लॉगिन करें</button>
+    </div>
 
-<section class="card">
-<h2>1. डिवाइस जोड़ें</h2>
+    <!-- Main Features Card -->
+    <div class="card" id="main-card" style="display:none;">
+      <h2>कंट्रोल पैनल</h2>
+      <p id="user-info" style="font-weight: bold; color: #075e54; margin-bottom: 10px;"></p>
+      
+      <button onclick="startVideoCall()">वीडियो कॉल शुरू करें</button>
+      <button class="secondary" onclick="openCamera()">कैमरा चालू करें</button>
+      <button onclick="shareLocation()">लाइव लोकेशन भेजें</button>
+      <button class="danger" onclick="logout()">लॉग आउट</button>
 
-<div class="status" id="loginStatus">
-Goswami Connect में आपका स्वागत है।
-</div>
+      <div class="status" id="statusBox">सिस्टम तैयार है...</div>
+      
+      <video id="localVideo" autoplay playsinline muted style="display:none;"></video>
+    </div>
 
-<label>इस डिवाइस का नाम</label>
-<input id="deviceName" placeholder="जैसे मेरा फोन">
+    <!-- Chat & Data Box -->
+    <div class="card">
+      <h2>संदेश और डेटा</h2>
+      <input type="text" id="messageInput" placeholder="संदेश या डेटा यहाँ लिखें...">
+      <button onclick="sendMessage()">डेटा भेजें</button>
+      <div class="outbox" id="outputBox" style="margin-top: 12px;">यहाँ लाइव डेटा दिखेगा...</div>
+    </div>
 
-<button id="createBtn">नया कनेक्शन कोड बनाएँ</button>
+  </div>
 
-<label>दूसरे डिवाइस से मिला कोड</label>
-<input id="sessionCode" placeholder="कनेक्शन कोड यहाँ लिखें">
+  <!-- Google Firebase Server SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-<button class="secondary" id="joinBtn">कोड से जुड़ें</button>
+  <script>
+    // आपके गूगल सर्वर की चाबी (Configuration)
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7rXpYUYHrf5Q2bfoCZOVXYzDl6CKOkoA",
+      authDomain: "goswami-connect.firebaseapp.com",
+      projectId: "goswami-connect",
+      storageBucket: "goswami-connect.firebasestorage.app",
+      messagingSenderId: "771765927522",
+      appId: "1:771765927522:web:e3344d9b61f291b3519b3b"
+    };
 
-<div id="qrbox">कनेक्शन कोड अभी नहीं बना है।</div>
+    // गूगल सर्वर चालू करने का कोड
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-<p class="note">
-नोट: दो फोन को वास्तव में जोड़ने के लिए सुरक्षित सर्वर की जरूरत है।
-</p>
-</section>
+    let currentUser = null;
+    let localStream = null;
 
-<section class="card">
-<h2>2. लाइव कैमरा और ऑडियो</h2>
+    const s = document.getElementById('statusBox');
+    const r = document.getElementById('outputBox');
 
-<div class="status" id="mediaStatus">
-कैमरा और माइक्रोफ़ोन बंद हैं।
-</div>
+    // Google Login
+    function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(error => {
+        alert("लॉगिन त्रुटि: " + error.message);
+      });
+    }
 
-<button id="cameraBtn">कैमरा/माइक चालू करें</button>
+    // Logout
+    function logout() {
+      auth.signOut();
+    }
 
-<button class="secondary" id="muteBtn" disabled>
-माइक म्यूट करें
-</button>
+    // Auth State Observer
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('auth-card').style.display = 'none';
+        document.getElementById('main-card').style.display = 'block';
+        document.getElementById('user-info').innerText = "लॉगिन यूज़र: " + (user.displayName || user.email);
+        loadLiveData();
+      } else {
+        currentUser = null;
+        document.getElementById('auth-card').style.display = 'block';
+        document.getElementById('main-card').style.display = 'none';
+      }
+    });
 
-<video id="localVideo" autoplay playsinline muted></video>
+    // Send Message / Data to Firestore
+    function sendMessage() {
+      const text = document.getElementById('messageInput').value.trim();
+      if (text && currentUser) {
+        db.collection('messages').add({
+          text: text,
+          sender: currentUser.displayName || 'यूजर',
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          document.getElementById('messageInput').value = '';
+        });
+      }
+    }
 
-<br>
+    // Load Live Data from Firestore
+    function loadLiveData() {
+      db.collection('messages').orderBy('timestamp', 'asc')
+        .onSnapshot(snapshot => {
+          r.innerHTML = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            r.innerHTML += `<div><b>${data.sender}:</b> ${data.text}</div>`;
+          });
+        });
+    }
 
-<button class="danger" id="stopBtn" disabled>
-कैमरा/माइक बंद करें
-</button>
+    // Video Call Feature
+    async function startVideoCall() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const videoElem = document.getElementById('localVideo');
+        videoElem.srcObject = localStream;
+        videoElem.style.display = 'block';
+        s.textContent = 'वीडियो और ऑडियो स्ट्रीम सक्रिय है।';
+      } catch (e) {
+        s.textContent = 'कैमरा और माइक की अनुमति आवश्यक है: ' + e.message;
+      }
+    }
 
-<p class="note">
-कैमरा और माइक्रोफ़ोन आपकी अनुमति से ही चालू होंगे।
-यह सुविधा अभी दूसरे फोन से लाइव कनेक्शन नहीं करती।
-</p>
-</section>
+    // Camera Open Feature
+    function openCamera() {
+      startVideoCall();
+    }
 
-<section class="card">
-<h2>3. लाइव लोकेशन</h2>
-
-<div class="status" id="locationStatus">
-लोकेशन साझा नहीं की गई है।
-</div>
-
-<button id="locationBtn">मेरी लोकेशन दिखाएँ</button>
-
-<div id="locationResult" class="note"></div>
-
-<p class="note">
-लोकेशन प्राप्त करने के लिए अनुमति देना जरूरी है।
-</p>
-</section>
-
-</main>
-
-<script>
-let stream=null;
-let muted=false;
-
-function makeCode(){
- let a=new Uint8Array(6);
- crypto.getRandomValues(a);
- return Array.from(a,b=>
-  (b%36).toString(36)
- ).join('').toUpperCase();
-}
-
-document.getElementById('createBtn').onclick=()=>{
- let c=makeCode();
-
- document.getElementById('sessionCode').value=c;
-
- document.getElementById('qrbox').textContent=
- 'अस्थायी कोड: '+c+
- '। वास्तविक कनेक्शन के लिए सर्वर जोड़ना बाकी है।';
-
- document.getElementById('loginStatus').textContent=
- 'कोड बनाया गया है। अभी दूसरे फोन से कनेक्शन नहीं हुआ है।';
-};
-
-document.getElementById('joinBtn').onclick=()=>{
- let c=document.getElementById('sessionCode').value.trim();
-
- document.getElementById('loginStatus').textContent=
- c
- ?'कोड दर्ज है: '+c+
- '। वास्तविक कनेक्शन के लिए सर्वर जरूरी है।'
- :'पहले कनेक्शन कोड लिखें।';
-};
-
-document.getElementById('cameraBtn').onclick=async()=>{
- try{
-  if(!navigator.mediaDevices?.getUserMedia){
-   throw Error('कैमरा चलाने के लिए HTTPS वेबसाइट खोलें।');
-  }
-
-  stream=await navigator.mediaDevices.getUserMedia({
-   video:true,
-   audio:true
-  });
-
-  document.getElementById('localVideo').srcObject=stream;
-
-  document.getElementById('mediaStatus').textContent=
-  'इस फोन का कैमरा और माइक चालू है।';
-
-  document.getElementById('stopBtn').disabled=false;
-  document.getElementById('muteBtn').disabled=false;
-  document.getElementById('cameraBtn').disabled=true;
-
- }catch(e){
-  document.getElementById('mediaStatus').textContent=
-  'कैमरा/माइक नहीं चला: '+e.message;
- }
-};
-
-document.getElementById('muteBtn').onclick=()=>{
- if(!stream)return;
-
- muted=!muted;
-
- stream.getAudioTracks().forEach(t=>{
-  t.enabled=!muted;
- });
-
- document.getElementById('muteBtn').textContent=
- muted?'माइक अनम्यूट करें':'माइक म्यूट करें';
-
- document.getElementById('mediaStatus').textContent=
- muted?'माइक्रोफ़ोन म्यूट है।':'माइक्रोफ़ोन चालू है।';
-};
-
-document.getElementById('stopBtn').onclick=()=>{
- if(stream){
-  stream.getTracks().forEach(t=>t.stop());
- }
-
- stream=null;
-
- document.getElementById('localVideo').srcObject=null;
-
- document.getElementById('mediaStatus').textContent=
- 'कैमरा और माइक्रोफ़ोन बंद हैं।';
-
- document.getElementById('stopBtn').disabled=true;
- document.getElementById('muteBtn').disabled=true;
- document.getElementById('cameraBtn').disabled=false;
- document.getElementById('muteBtn').textContent='माइक म्यूट करें';
-
- muted=false;
-};
-
-document.getElementById('locationBtn').onclick=()=>{
- let s=document.getElementById('locationStatus');
- let r=document.getElementById('locationResult');
-
- if(!navigator.geolocation){
-  s.textContent='इस ब्राउज़र में लोकेशन उपलब्ध नहीं है।';
-  return;
- }
-
- s.textContent='लोकेशन की अनुमति माँगी जा रही है…';
-
- navigator.geolocation.getCurrentPosition(
-  p=>{
-   s.textContent='लोकेशन मिल गई।';
-
-   r.textContent=
-   'अक्षांश: '+p.coords.latitude.toFixed(6)+
-   ' • देशांतर: '+p.coords.longitude.toFixed(6);
-  },
-  e=>{
-   s.textContent='लोकेशन नहीं मिली: '+e.message;
-  },
-  {enableHighAccuracy:true,timeout:12000}
- );
-};
-</script>
-<!-- Google Firebase Server SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-<script>
-  // आपके गूगल सर्वर की चाबी (Configuration)
-  const firebaseConfig = {
-    apiKey: "AIzaSyA7rXpYUYHrf5Q2bfoCZOVXYzDl6CKOkoA",
-    authDomain: "goswami-connect.firebaseapp.com",
-    projectId: "goswami-connect",
-    storageBucket: "goswami-connect.firebasestorage.app",
-    messagingSenderId: "771765927522",
-    appId: "1:771765927522:web:e3344d9b61f291b3519b3b"
-  };
-
-  // गूगल सर्वर चालू करने का कोड
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
+    // Location Share Feature
+    function shareLocation() {
+      s.textContent = 'लोकेशन की अनुमति माँगी जा रही है...';
+      navigator.geolocation.getCurrentPosition(p => {
+        s.textContent = 'लोकेशन मिल गई!';
+        const locMsg = `अक्षांश: ${p.coords.latitude.toFixed(6)}, देशांतर: ${p.coords.longitude.toFixed(6)}`;
+        document.getElementById('messageInput').value = locMsg;
+      }, e => {
+        s.textContent = 'लोकेशन नहीं मिली: ' + e.message;
+      }, { enableHighAccuracy: true, timeout: 12000 });
+    }
+  </script>
 
 </body>
 </html>
