@@ -1,122 +1,281 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Goswami Connect</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
-    header { background-color: #075e54; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; }
-    #auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; padding: 20px; text-align: center; }
-    .btn { background-color: #4285f4; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
-    #chat-container { display: none; flex-direction: column; height: calc(100vh - 60px); }
-    #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .msg { background: white; padding: 10px 15px; border-radius: 10px; max-width: 80%; width: fit-content; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .msg.me { background: #dcf8c6; align-self: flex-end; }
-    .msg .sender { font-size: 11px; color: #666; margin-bottom: 3px; font-weight: bold; }
-    .input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #ccc; }
-    .input-area input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
-    .input-area button { background: #128c7e; color: white; border: none; padding: 10px 20px; margin-left: 8px; border-radius: 20px; cursor: pointer; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goswami Connect</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#eef3f6;
+ color:#202832;
+ font-family:Arial,sans-serif
+}
+header{
+ background:#075e54;
+ color:white;
+ padding:22px 18px;
+ font-size:24px;
+ font-weight:bold
+}
+header small{
+ display:block;
+ font-size:15px;
+ font-weight:normal;
+ margin-top:8px
+}
+.wrap{max-width:760px;margin:auto;padding:16px}
+.card{
+ background:white;
+ border-radius:20px;
+ padding:20px;
+ margin:14px 0;
+ box-shadow:0 5px 20px #0000000b
+}
+h2{font-size:22px;margin:0 0 16px}
+button,input{
+ font:inherit;
+ border-radius:12px;
+ padding:14px;
+ border:1px solid #cbd5d8
+}
+button{
+ background:#087f70;
+ color:white;
+ border:0;
+ font-weight:bold;
+ margin:5px 4px 5px 0
+}
+.secondary{background:#e4eeee;color:#164d47}
+.danger{background:#a62929}
+input{width:100%;margin:6px 0 12px}
+.status{
+ background:#e8f5ed;
+ color:#24543c;
+ border-radius:12px;
+ padding:12px;
+ margin:10px 0
+}
+video{
+ width:100%;
+ min-height:180px;
+ background:#222;
+ border-radius:14px;
+ margin-top:8px
+}
+.note{font-size:14px;color:#5f6b70;line-height:1.5}
+#qrbox{
+ padding:12px;
+ background:#f4f7f7;
+ border-radius:12px;
+ word-break:break-word
+}
+</style>
 </head>
+
 <body>
 
-  <header>Goswami Connect</header>
+<header>
+🔗 Goswami Connect
+<small>डिवाइस कनेक्शन • लाइव कैमरा • ऑडियो • लोकेशन</small>
+</header>
 
-  <!-- Login Section -->
-  <div id="auth-container">
-    <h2>Goswami Connect में आपका स्वागत है</h2>
-    <p style="margin-top: 8px; color: #555;">चैट करने के लिए अपने Google अकाउंट से लॉगिन करें</p>
-    <button class="btn" onclick="login()">Google से लॉगिन करें</button>
-  </div>
+<main class="wrap">
 
-  <!-- Chat Section -->
-  <div id="chat-container">
-    <div id="messages"></div>
-    <div class="input-area">
-      <input type="text" id="messageInput" placeholder="संदेश लिखें...">
-      <button onclick="sendMessage()">भेजें</button>
-    </div>
-  </div>
+<section class="card">
+<h2>1. डिवाइस जोड़ें</h2>
 
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<div class="status" id="loginStatus">
+Goswami Connect में आपका स्वागत है।
+</div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA7rXpYUYHrf5Q2bfoCZOVXYzDl6CKOkoA",
-      authDomain: "goswami-connect.firebaseapp.com",
-      projectId: "goswami-connect",
-      storageBucket: "goswami-connect.firebasestorage.app",
-      messagingSenderId: "771765927522",
-      appId: "1:771765927522:web:e3344d9b61f291b3519b3b"
-    };
+<label>इस डिवाइस का नाम</label>
+<input id="deviceName" placeholder="जैसे मेरा फोन">
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+<button id="createBtn">नया कनेक्शन कोड बनाएँ</button>
 
-    let currentUser = null;
+<label>दूसरे डिवाइस से मिला कोड</label>
+<input id="sessionCode" placeholder="कनेक्शन कोड यहाँ लिखें">
 
-    // Login Function
-    function login() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(error => alert(error.message));
-    }
+<button class="secondary" id="joinBtn">कोड से जुड़ें</button>
 
-    // Check Auth State
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('chat-container').style.display = 'flex';
-        loadMessages();
-      } else {
-        document.getElementById('auth-container').style.display = 'flex';
-        document.getElementById('chat-container').style.display = 'none';
-      }
-    });
+<div id="qrbox">कनेक्शन कोड अभी नहीं बना है।</div>
 
-    // Send Message
-    function sendMessage() {
-      const input = document.getElementById('messageInput');
-      const text = input.value.trim();
-      if (text && currentUser) {
-        db.collection('messages').add({
-          text: text,
-          sender: currentUser.displayName || 'यूजर',
-          uid: currentUser.uid,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        input.value = '';
-      }
-    }
+<p class="note">
+नोट: दो फोन को वास्तव में जोड़ने के लिए सुरक्षित सर्वर की जरूरत है।
+</p>
+</section>
 
-    // Load Live Messages
-    function loadMessages() {
-      db.collection('messages').orderBy('timestamp', 'asc')
-        .onSnapshot(snapshot => {
-          const msgContainer = document.getElementById('messages');
-          msgContainer.innerHTML = '';
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const div = document.createElement('div');
-            const isMe = data.uid === currentUser.uid;
-            div.className = `msg ${isMe ? 'me' : ''}`;
-            div.innerHTML = `<div class="sender">${data.sender}</div>${data.text}`;
-            msgContainer.appendChild(div);
-          });
-          msgContainer.scrollTop = msgContainer.scrollHeight;
-        });
-    }
-  </script>
+<section class="card">
+<h2>2. लाइव कैमरा और ऑडियो</h2>
+
+<div class="status" id="mediaStatus">
+कैमरा और माइक्रोफ़ोन बंद हैं।
+</div>
+
+<button id="cameraBtn">कैमरा/माइक चालू करें</button>
+
+<button class="secondary" id="muteBtn" disabled>
+माइक म्यूट करें
+</button>
+
+<video id="localVideo" autoplay playsinline muted></video>
+
+<br>
+
+<button class="danger" id="stopBtn" disabled>
+कैमरा/माइक बंद करें
+</button>
+
+<p class="note">
+कैमरा और माइक्रोफ़ोन आपकी अनुमति से ही चालू होंगे।
+यह सुविधा अभी दूसरे फोन से लाइव कनेक्शन नहीं करती।
+</p>
+</section>
+
+<section class="card">
+<h2>3. लाइव लोकेशन</h2>
+
+<div class="status" id="locationStatus">
+लोकेशन साझा नहीं की गई है।
+</div>
+
+<button id="locationBtn">मेरी लोकेशन दिखाएँ</button>
+
+<div id="locationResult" class="note"></div>
+
+<p class="note">
+लोकेशन प्राप्त करने के लिए अनुमति देना जरूरी है।
+</p>
+</section>
+
+</main>
+
+<script>
+let stream=null;
+let muted=false;
+
+function makeCode(){
+ let a=new Uint8Array(6);
+ crypto.getRandomValues(a);
+ return Array.from(a,b=>
+  (b%36).toString(36)
+ ).join('').toUpperCase();
+}
+
+document.getElementById('createBtn').onclick=()=>{
+ let c=makeCode();
+
+ document.getElementById('sessionCode').value=c;
+
+ document.getElementById('qrbox').textContent=
+ 'अस्थायी कोड: '+c+
+ '। वास्तविक कनेक्शन के लिए सर्वर जोड़ना बाकी है।';
+
+ document.getElementById('loginStatus').textContent=
+ 'कोड बनाया गया है। अभी दूसरे फोन से कनेक्शन नहीं हुआ है।';
+};
+
+document.getElementById('joinBtn').onclick=()=>{
+ let c=document.getElementById('sessionCode').value.trim();
+
+ document.getElementById('loginStatus').textContent=
+ c
+ ?'कोड दर्ज है: '+c+
+ '। वास्तविक कनेक्शन के लिए सर्वर जरूरी है।'
+ :'पहले कनेक्शन कोड लिखें।';
+};
+
+document.getElementById('cameraBtn').onclick=async()=>{
+ try{
+  if(!navigator.mediaDevices?.getUserMedia){
+   throw Error('कैमरा चलाने के लिए HTTPS वेबसाइट खोलें।');
+  }
+
+  stream=await navigator.mediaDevices.getUserMedia({
+   video:true,
+   audio:true
+  });
+
+  document.getElementById('localVideo').srcObject=stream;
+
+  document.getElementById('mediaStatus').textContent=
+  'इस फोन का कैमरा और माइक चालू है।';
+
+  document.getElementById('stopBtn').disabled=false;
+  document.getElementById('muteBtn').disabled=false;
+  document.getElementById('cameraBtn').disabled=true;
+
+ }catch(e){
+  document.getElementById('mediaStatus').textContent=
+  'कैमरा/माइक नहीं चला: '+e.message;
+ }
+};
+
+document.getElementById('muteBtn').onclick=()=>{
+ if(!stream)return;
+
+ muted=!muted;
+
+ stream.getAudioTracks().forEach(t=>{
+  t.enabled=!muted;
+ });
+
+ document.getElementById('muteBtn').textContent=
+ muted?'माइक अनम्यूट करें':'माइक म्यूट करें';
+
+ document.getElementById('mediaStatus').textContent=
+ muted?'माइक्रोफ़ोन म्यूट है।':'माइक्रोफ़ोन चालू है।';
+};
+
+document.getElementById('stopBtn').onclick=()=>{
+ if(stream){
+  stream.getTracks().forEach(t=>t.stop());
+ }
+
+ stream=null;
+
+ document.getElementById('localVideo').srcObject=null;
+
+ document.getElementById('mediaStatus').textContent=
+ 'कैमरा और माइक्रोफ़ोन बंद हैं।';
+
+ document.getElementById('stopBtn').disabled=true;
+ document.getElementById('muteBtn').disabled=true;
+ document.getElementById('cameraBtn').disabled=false;
+ document.getElementById('muteBtn').textContent='माइक म्यूट करें';
+
+ muted=false;
+};
+
+document.getElementById('locationBtn').onclick=()=>{
+ let s=document.getElementById('locationStatus');
+ let r=document.getElementById('locationResult');
+
+ if(!navigator.geolocation){
+  s.textContent='इस ब्राउज़र में लोकेशन उपलब्ध नहीं है।';
+  return;
+ }
+
+ s.textContent='लोकेशन की अनुमति माँगी जा रही है…';
+
+ navigator.geolocation.getCurrentPosition(
+  p=>{
+   s.textContent='लोकेशन मिल गई।';
+
+   r.textContent=
+   'अक्षांश: '+p.coords.latitude.toFixed(6)+
+   ' • देशांतर: '+p.coords.longitude.toFixed(6);
+  },
+  e=>{
+   s.textContent='लोकेशन नहीं मिली: '+e.message;
+  },
+  {enableHighAccuracy:true,timeout:12000}
+ );
+};
+</script>
+
 </body>
 </html>
-
-
-
