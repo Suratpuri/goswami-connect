@@ -84,4 +84,29 @@ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 document.querySelectorAll('.tile').forEach(b=>b.addEventListener('click',()=>show(b.dataset.panel)));
 </script>
-</body></html>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7rXpYUYHrf5Q2bfoCZOVXYzDl6CKOkoA",
+    authDomain: "goswami-connect.firebaseapp.com",
+    projectId: "goswami-connect",
+    storageBucket: "goswami-connect.firebasestorage.app",
+    messagingSenderId: "771765927522",
+    appId: "1:771765927522:web:e3344d9b61f291b3519b3b"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+</body>
+</html>
+
+
+
